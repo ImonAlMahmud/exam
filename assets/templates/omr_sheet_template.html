@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Answer Sheet - 100 Questions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            .omr-sheet-container {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                height: 297mm; /* Force height to A4 size */
+                width: 210mm; /* Force width to A4 size */
+                overflow: hidden; /* Prevent content from spilling over */
+            }
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .omr-sheet-container {
+            width: 210mm;
+            height: 297mm; /* Fixed height for A4 */
+            background-color: white;
+            padding: 10mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent content from spilling over */
+        }
+
+        /* --- Alignment Markers (Crucial for OpenCV) --- */
+        .marker {
+            position: absolute;
+            width: 7mm;
+            height: 7mm;
+            background-color: black;
+        }
+        .marker.top-left { top: 8mm; left: 8mm; }
+        .marker.top-right { top: 8mm; right: 8mm; }
+        .marker.bottom-left { bottom: 8mm; left: 8mm; }
+        .marker.bottom-right { bottom: 8mm; right: 8mm; }
+
+        /* --- Header Section --- */
+        .header {
+            text-align: center;
+            margin-bottom: 5mm; /* Reduced margin */
+        }
+        .header h1 {
+            font-size: 18px; /* Reduced font size */
+            margin: 0;
+            padding: 0;
+            font-weight: 700;
+        }
+        .header p {
+            font-size: 12px; /* Reduced font size */
+            margin: 2px 0 0 0;
+        }
+
+        /* --- Student Info Section --- */
+        .info-table {
+            width: 100%;
+            margin-top: 5mm; /* Reduced margin */
+		    border-collapse: collapse;
+        }
+        .info-table td {
+            border: 1px solid #333;
+            padding: 4px; /* Reduced padding */
+            font-size: 11px; /* Reduced font size */
+            height: 7mm; /* Reduced height */
+        }
+        .info-table .label {
+            font-weight: bold;
+            width: 30mm;
+        }
+
+        /* --- Main Answer Grid --- */
+        .answer-grid {
+            position: absolute; /* Position grid absolutely to control its size and location */
+            top: 60mm; /* Adjust based on header and info table height */
+            left: 10mm;
+            right: 10mm;
+            bottom: 10mm; /* Use bottom to define the height dynamically */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns for 100 questions */
+            gap: 8mm; /* Reduced gap */
+            overflow: hidden; 
+        }
+        .question-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5mm; /* Fine-tuned spacing */
+            height: 100%; /* Ensure column takes full available height */
+        }
+        .question-row {
+            display: flex;
+            align-items: center;
+            height: 6.5mm; /* Reduced height */
+        }
+        .question-number {
+            font-weight: 500;
+            font-size: 10px; /* Reduced font size */
+            width: 20px;
+            text-align: right;
+            padding-right: 4px;
+        }
+        .bubbles {
+            display: flex;
+            gap: 2.5mm; /* Reduced gap */
+        }
+        .bubble {
+            width: 5mm;
+            height: 5mm;
+            border: 1px solid #444; /* Thinner border */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 9px; /* Reduced font size */
+            font-weight: 500;
+        }
+        
+        .print-button {
+            margin-bottom: 20px;
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .print-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">Print or Save as PDF</button>
+
+    <div class="omr-sheet-container" id="omr-sheet">
+        <!-- Alignment Markers -->
+        <div class="marker top-left"></div>
+        <div class="marker top-right"></div>
+        <div class="marker bottom-left"></div>
+        <div class="marker bottom-right"></div>
+
+        <header class="header">
+            <h1>OMR ANSWER SHEET</h1>
+            <p>HTEC Exam System (EXAMON)</p>
+        </header>
+
+        <table class="info-table">
+            <tr>
+                <td class="label">Student Name:</td>
+                <td></td>
+                <td class="label">Roll Number:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="label">Exam Title:</td>
+                <td></td>
+                <td class="label">Date:</td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <div class="answer-grid">
+            <!-- Dynamically generated columns -->
+        </div>
+    </div>
+    
+    <script>
+        // JavaScript to generate the OMR bubbles for 100 questions in 4 columns
+        function generateBubbles() {
+            const grid = document.querySelector('.answer-grid');
+            const options = ['A', 'B', 'C', 'D'];
+            const totalQuestions = 100;
+            const numColumns = 4;
+            const questionsPerColumn = totalQuestions / numColumns;
+
+            // Create columns
+            for (let c = 0; c < numColumns; c++) {
+                const column = document.createElement('div');
+                column.className = 'question-column';
+                grid.appendChild(column);
+            }
+
+            const columns = document.querySelectorAll('.question-column');
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const row = document.createElement('div');
+                row.className = 'question-row';
+
+                const qNum = document.createElement('div');
+                qNum.className = 'question-number';
+                qNum.textContent = `${i}.`;
+                row.appendChild(qNum);
+
+                const bubblesDiv = document.createElement('div');
+                bubblesDiv.className = 'bubbles';
+                
+                options.forEach((opt) => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.textContent = opt;
+                    bubblesDiv.appendChild(bubble);
+                });
+
+                row.appendChild(bubblesDiv);
+                
+                // Determine which column this row belongs to
+                const columnIndex = Math.floor((i - 1) / questionsPerColumn);
+                columns[columnIndex].appendChild(row);
+            }
+        }
+        
+        generateBubbles();
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* assets/css/exam.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* ... (root variables from dashboard.css can be copied here) ... */
+
+body {
+    background-color: #101221;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.exam-container {
+    width: 90%;
+    max-width: 800px;
+    background: #1a1d2e;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+.exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.timer { font-size: 1.2em; font-weight: 500; color: #ffc107; }
+
+#question-container h2 { margin-bottom: 20px; }
+.options-list { list-style: none; padding: 0; }
+.options-list li {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.options-list li:hover { background: rgba(255, 255, 255, 0.1); }
+.options-list li.selected { background-color: #007bff; }
+
+.exam-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+.btn-nav, .btn-submit {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#question-navigation .btn-nav {
+    background-color: #555;
+    margin: 2px;
+}
+#question-navigation .btn-nav.active {
+    background-color: #007bff;
+    border: 1px solid white;
+}
+
+/* Styling for question navigation buttons (pagination) */
+#question-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+#question-navigation .btn-nav {
+    background-color: #555;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s, transform 0.2s;
+    min-width: 35px; /* Ensure buttons are not too small */
+    text-align: center;
+}
+#question-navigation .btn-nav:hover {
+    background-color: #777;
+    transform: translateY(-2px);
+}
+#question-navigation .btn-nav.active {
+    background-color: var(--primary-color);
+    border: 1px solid white;
+    font-weight: bold;
+}
+#question-navigation .btn-nav.answered-page { /* Style for pages where all questions are answered */
+    background-color: #28a745; /* Green for answered page */
+}
+#question-navigation .btn-nav.answered-page.active {
+    background-color: #1a7e30; /* Darker green if active and answered */
+}
+
+/* Specific styling for question list in a page */
+.single-question {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.single-question:last-of-type {
+    border-bottom: none; /* No border for the last question on a page */
+}
+.options-list li {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    border: 1px solid transparent;
+}
+.options-list li:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+.options-list li.selected {
+    background-color: var(--primary-color);
+    border-color: white;
+    font-weight: 500;
+}
+.btn-submit { background-color: #28a745; }
